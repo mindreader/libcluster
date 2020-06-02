@@ -202,10 +202,10 @@ defmodule Cluster.Strategy.Kubernetes do
 
     token = get_token(service_account_path)
 
-    if Keyword.get(config, :kubernetes_namespace) == :any_namespaces do
-      namespace = nil
+    namespace = if Keyword.get(config, :kubernetes_namespace) == :any_namespaces do
+      nil
     else
-      namespace = get_namespace(service_account_path, Keyword.get(config, :kubernetes_namespace))
+      get_namespace(service_account_path, Keyword.get(config, :kubernetes_namespace))
     end
     app_name = Keyword.fetch!(config, :kubernetes_node_basename)
     cluster_name = Keyword.get(config, :kubernetes_cluster_name, "cluster")
