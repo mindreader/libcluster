@@ -63,6 +63,7 @@ defmodule Cluster.Strategy.Kubernetes do
   In this case you must also set `kubernetes_service_name` to the name of the K8S service that is being queried.
 
   `mode` defaults to `:ip`.
+  `kubernetes_namspace` may be set to `:any_namespaces` to search them all.
 
   An example configuration is below:
 
@@ -201,7 +202,7 @@ defmodule Cluster.Strategy.Kubernetes do
 
     token = get_token(service_account_path)
 
-    if Keyword.get(config, :kubernetes_namespace) == :all_namespaces do
+    if Keyword.get(config, :kubernetes_namespace) == :any_namespaces do
       namespace = nil
     else
       namespace = get_namespace(service_account_path, Keyword.get(config, :kubernetes_namespace))
