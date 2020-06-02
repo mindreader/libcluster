@@ -201,7 +201,11 @@ defmodule Cluster.Strategy.Kubernetes do
 
     token = get_token(service_account_path)
 
-    namespace = get_namespace(service_account_path, Keyword.get(config, :kubernetes_namespace))
+    if Keyword.get(config, :kubernetes_namespace) == :all_namespaces do
+      namespace = nil
+    else
+      namespace = get_namespace(service_account_path, Keyword.get(config, :kubernetes_namespace))
+    end
     app_name = Keyword.fetch!(config, :kubernetes_node_basename)
     cluster_name = Keyword.get(config, :kubernetes_cluster_name, "cluster")
     service_name = Keyword.get(config, :kubernetes_service_name)
@@ -213,10 +217,16 @@ defmodule Cluster.Strategy.Kubernetes do
       app_name != nil and selector != nil ->
         selector = URI.encode(selector)
 
+        namespace_search =
+          if namespace do
+            "/namespaces/#{namespace}"
+          else
+            ""
+          end
         path =
           case ip_lookup_mode do
-            :endpoints -> "api/v1/namespaces/#{namespace}/endpoints?labelSelector=#{selector}"
-            :pods -> "api/v1/namespaces/#{namespace}/pods?labelSelector=#{selector}"
+            :endpoints -> "api/v1/#{namespace_search}/endpoints?labelSelector=#{selector}"
+            :pods -> "api/v1/#{namespace_search}/pods?labelSelector=#{selector}"
           end
 
         headers = [{'authorization', 'Bearer #{token}'}]
